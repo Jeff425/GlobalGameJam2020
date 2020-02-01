@@ -19,22 +19,38 @@ public class PlayerController : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
-        //Physics2D.gravity = new Vector2(1f, 0);
+        Physics2D.gravity = Vector3.right * 9.8f;
     }
 
     void Update() 
     {
         float direction = Input.GetAxisRaw("Horizontal");
-        bool grounded = IsGrounded();
-        if (Input.GetKeyDown(KeyCode.Space) && grounded) {
-            rigid.velocity = new Vector2(direction * speed, jumpForce);
+        //bool grounded = IsCollided(Vector2.down);
+        bool grounded = IsCollided(Vector2.right);
+        if (direction > 0) {
+            //bool hitRightWall = IsCollided(Vector2.right);
+            bool hitRightWall = IsCollided(Vector2.up);
+            if (hitRightWall) {
+                direction = 0;
+            }
         } else {
-            rigid.velocity = new Vector2(direction * speed, rigid.velocity.y);
+            //bool hitLeftWall = IsCollided(Vector2.left);
+            bool hitLeftWall = IsCollided(Vector2.down);
+            if (hitLeftWall) {
+                direction = 0;
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Space) && grounded) {
+            //rigid.velocity = new Vector2(direction * speed, jumpForce);
+            rigid.velocity = new Vector2(-jumpForce, direction * speed);
+        } else {          
+            //rigid.velocity = new Vector2(direction * speed, rigid.velocity.y);
+            rigid.velocity = new Vector2(rigid.velocity.x, direction * speed);
         }
     }
 
-    bool IsGrounded() {
-        RaycastHit2D raycast = Physics2D.BoxCast(col.bounds.center, col.bounds.size, 0f, Vector2.down, 0.1f, platformLayer);
+    bool IsCollided(Vector2 direction) {
+        RaycastHit2D raycast = Physics2D.BoxCast(col.bounds.center, col.bounds.size, 0f, direction, 0.01f, platformLayer);
         return raycast.collider != null;
     }
 }

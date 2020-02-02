@@ -135,6 +135,8 @@ public class PlayerController : MonoBehaviour
             col.GetComponent<ButtonController>().Trigger();
             if (GameVariables.HasWon()) {
                 victoryText.SetActive(true);
+                IEnumerator coroutine = WaitAndTurnOffVictory();
+                StartCoroutine(coroutine);
             }
         } else if (col.gameObject.layer == LayerMask.NameToLayer("Fire")) {
             Reset();

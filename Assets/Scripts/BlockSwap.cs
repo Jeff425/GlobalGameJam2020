@@ -20,7 +20,6 @@ public class BlockSwap : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         animator.SetBool("IsSwapping", false);
-        Debug.Log("END");
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

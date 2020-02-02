@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 
 public class GameController : MonoBehaviour
 {
+    public static GameController Instance;
     [SerializeField]
     Tilemap black;
     [SerializeField]
@@ -20,8 +21,11 @@ public class GameController : MonoBehaviour
     Collider2D blueCollider;
 
     void Awake() {
+        if (Instance == null) {
+            Instance = this;
+        }
         if (GameVariables.Black == Direction.notset) {
-            GameVariables.Black = Direction.down;
+            GameVariables.Black = Direction.up;
         }
         RotateTiles(black, GameVariables.Black);
         if (GameVariables.Yellow == Direction.notset) {
@@ -61,6 +65,18 @@ public class GameController : MonoBehaviour
             for  (int y = bounds.yMin; y < bounds.yMax; y++) {
                 map.SetTransformMatrix(new Vector3Int(x, y, 0), matrix);
             }
+        }
+    }
+
+    public void RotateTilesOfColor(Colors color) {
+        if (color == Colors.black) {
+            RotateTiles(black, GameVariables.Black);
+        } else if (color == Colors.yellow) {
+            RotateTiles(yellow, GameVariables.Yellow);
+        } else if (color == Colors.orange) {
+            RotateTiles(orange, GameVariables.Orange);
+        } else if (color == Colors.blue) {
+            RotateTiles(blue, GameVariables.Blue);
         }
     }
 

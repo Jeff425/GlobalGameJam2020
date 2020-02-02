@@ -5,9 +5,6 @@ using UnityEngine.Tilemaps;
 
 public class PlayerController : MonoBehaviour
 {
-
-    [SerializeField]
-    GameController gameController;
     [SerializeField]
     float speed;
     [SerializeField]
@@ -22,7 +19,6 @@ public class PlayerController : MonoBehaviour
     Direction gravityDirection;
     float startTime;
     float lastTranstion;
-    Direction lastDirection;
     float oldGravityMagnitude;
 
     void Awake()
@@ -31,7 +27,6 @@ public class PlayerController : MonoBehaviour
         col = GetComponent<BoxCollider2D>();
         gravityDirection = Direction.down;
         lastTranstion = -swapTimeSeconds - 1;
-        lastDirection = Direction.notset;
     }
 
     void Update() 
@@ -41,8 +36,8 @@ public class PlayerController : MonoBehaviour
         float currentTime = Time.time;
         bool noControl = currentTime - swapTimeSeconds < lastTranstion;
         float oldGravity = 0f;
-        if (noControl && lastDirection != Direction.notset) {
-            float percent = (currentTime - lastTranstion) / swapTimeSeconds;
+        if (noControl) {
+            float percent = (currentTime - lastTranstion) / swapTimeSeconds;        
             oldGravity = Mathf.Lerp(oldGravityMagnitude, 0, percent);
         }
         Vector2 down = new Vector2();
@@ -92,19 +87,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter2D(Collider2D col) {
+        if (col.gameObject.layer == LayerMask.NameToLayer("Button")) {
+            col.GetComponent<ButtonController>().Trigger();
+        }
+    }
+
     void CheckGravity() {
-        Direction tmpDirection = gameController.GetDirectionFromPoint(transform.position);
+        Direction tmpDirection = GameController.Instance.GetDirectionFromPoint(transform.position);
         if (tmpDirection == Direction.notset || tmpDirection == gravityDirection) {
             return;
         }
         if (((gravityDirection == Direction.up || gravityDirection == Direction.down) && tmpDirection != Direction.up && tmpDirection != Direction.down) ||
             ((gravityDirection == Direction.left || gravityDirection == Direction.right) && tmpDirection != Direction.left && tmpDirection != Direction.right)) {
                 oldGravityMagnitude = gravityDirection == Direction.up || gravityDirection == Direction.down ? rigid.velocity.y : rigid.velocity.x;
-                lastDirection = gravityDirection;
         } else {
-            lastDirection = Direction.notset;
+            // Technically movement magnitude
+            oldGravityMagnitude = gravityDirection == Direction.up || gravityDirection == Direction.down ? rigid.velocity.x : rigid.velocity.y;
         }
-        lastDirection = gravityDirection;
         lastTranstion = Time.time;
         gravityDirection = tmpDirection;
         switch (gravityDirection) {

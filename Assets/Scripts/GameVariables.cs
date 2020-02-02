@@ -45,3 +45,7 @@ public static class GameVariables {
 public enum Direction {
     up, down, left, right, notset
 }
+
+public enum Colors {
+    black, yellow, orange, blue
+}

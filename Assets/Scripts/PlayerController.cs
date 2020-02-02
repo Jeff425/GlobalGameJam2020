@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     float lastTranstion;
     float oldGravityMagnitude;
     IEnumerator delayedPhysics;
+    Vector2 startPosition;
 
     void Awake()
     {
@@ -31,6 +32,7 @@ public class PlayerController : MonoBehaviour
         gravityDirection = Direction.down;
         lastTranstion = -swapTimeSeconds - 1;
         delayedPhysics = null;
+        startPosition = transform.position;
     }
 
     void Update() 
@@ -94,6 +96,10 @@ public class PlayerController : MonoBehaviour
     void OnTriggerEnter2D(Collider2D col) {
         if (col.gameObject.layer == LayerMask.NameToLayer("Button")) {
             col.GetComponent<ButtonController>().Trigger();
+        } else if (col.gameObject.layer == LayerMask.NameToLayer("Fire")) {
+            GameController.Instance.Reset();
+            transform.position = startPosition;
+            rigid.velocity = Vector2.zero;
         }
     }
 

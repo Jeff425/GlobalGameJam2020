@@ -24,22 +24,7 @@ public class GameController : MonoBehaviour
         if (Instance == null) {
             Instance = this;
         }
-        if (GameVariables.Black == Direction.notset) {
-            GameVariables.Black = Direction.up;
-        }
-        RotateTiles(black, GameVariables.Black);
-        if (GameVariables.Yellow == Direction.notset) {
-            GameVariables.Yellow = Direction.right;
-        }
-        RotateTiles(yellow, GameVariables.Yellow);
-        if (GameVariables.Orange == Direction.notset) {
-            GameVariables.Orange = Direction.left;
-        }
-        RotateTiles(orange, GameVariables.Orange);
-        if (GameVariables.Blue == Direction.notset) {
-            GameVariables.Blue = Direction.down;
-        }
-        RotateTiles(blue, GameVariables.Blue);
+        Reset();
         blackCollider = black.GetComponent<Collider2D>();
         yellowCollider = yellow.GetComponent<Collider2D>();
         orangeCollider = orange.GetComponent<Collider2D>();
@@ -110,5 +95,16 @@ public class GameController : MonoBehaviour
             return GameVariables.Orange;
         }
         return Direction.notset;
+    }
+
+    public void Reset() {
+        GameVariables.Black = Direction.up;
+        GameVariables.Yellow = Direction.right;
+        GameVariables.Orange = Direction.left;
+        GameVariables.Blue = Direction.down;
+        RotateTiles(black, GameVariables.Black);
+        RotateTiles(yellow, GameVariables.Yellow);
+        RotateTiles(orange, GameVariables.Orange);
+        RotateTiles(blue, GameVariables.Blue);
     }
 }

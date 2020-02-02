@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class GameVariables {
-    private static Direction black, blue, yellow, orange;
+    private static Direction black = Direction.notset, blue = Direction.notset, yellow = Direction.notset, orange = Direction.notset;
 
     public static Direction Black {
         get {
@@ -43,5 +43,5 @@ public static class GameVariables {
 }
 
 public enum Direction {
-    up, down, left, right
+    up, down, left, right, notset
 }

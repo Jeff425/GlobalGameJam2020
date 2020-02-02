@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
     LayerMask platformLayer;
     [SerializeField]
     float swapTimeSeconds;
+    [SerializeField]
+    float flipTimeSeconds;
 
     Rigidbody2D rigid;
     BoxCollider2D col;
@@ -20,6 +22,7 @@ public class PlayerController : MonoBehaviour
     float startTime;
     float lastTranstion;
     float oldGravityMagnitude;
+    IEnumerator delayedPhysics;
 
     void Awake()
     {
@@ -27,6 +30,7 @@ public class PlayerController : MonoBehaviour
         col = GetComponent<BoxCollider2D>();
         gravityDirection = Direction.down;
         lastTranstion = -swapTimeSeconds - 1;
+        delayedPhysics = null;
     }
 
     void Update() 
@@ -98,30 +102,45 @@ public class PlayerController : MonoBehaviour
         if (tmpDirection == Direction.notset || tmpDirection == gravityDirection) {
             return;
         }
-        if (((gravityDirection == Direction.up || gravityDirection == Direction.down) && tmpDirection != Direction.up && tmpDirection != Direction.down) ||
-            ((gravityDirection == Direction.left || gravityDirection == Direction.right) && tmpDirection != Direction.left && tmpDirection != Direction.right)) {
-                oldGravityMagnitude = gravityDirection == Direction.up || gravityDirection == Direction.down ? rigid.velocity.y : rigid.velocity.x;
+        if (delayedPhysics != null) {
+            StopCoroutine(delayedPhysics);
+            delayedPhysics = null;
+        }
+        if (GameVariables.IsVertical(gravityDirection) != GameVariables.IsVertical(tmpDirection)) {
+                oldGravityMagnitude = GameVariables.IsVertical(gravityDirection) ? rigid.velocity.y : rigid.velocity.x;
         } else {
             // Technically movement magnitude
-            oldGravityMagnitude = gravityDirection == Direction.up || gravityDirection == Direction.down ? rigid.velocity.x : rigid.velocity.y;
+            oldGravityMagnitude = GameVariables.IsVertical(gravityDirection) ? rigid.velocity.x : rigid.velocity.y;
         }
         lastTranstion = Time.time;
+        Direction oldDirection = gravityDirection;
         gravityDirection = tmpDirection;
+        Vector2 newGrav = Vector2.zero;
         switch (gravityDirection) {
             case Direction.down:
-                Physics2D.gravity = Vector2.down * 9.8f;
+                newGrav = Vector2.down * 9.8f;
                 break;
             case Direction.left:
-                Physics2D.gravity = Vector2.left * 9.8f;
+                newGrav = Vector2.left * 9.8f;
                 break;
             case Direction.right:
-                Physics2D.gravity = Vector2.right * 9.8f;
+                newGrav = Vector2.right * 9.8f;
                 break;
             case Direction.up:
-                Physics2D.gravity = Vector2.up * 9.8f;
+                newGrav = Vector2.up * 9.8f;
                 break;
         }
-        
+        if (GameVariables.IsVertical(gravityDirection) == GameVariables.IsVertical(oldDirection)) {
+            delayedPhysics = WaitAndChangeGravity(newGrav);
+            StartCoroutine(delayedPhysics);
+        } else {
+            Physics2D.gravity = newGrav;
+        }
+    }
+
+    IEnumerator WaitAndChangeGravity(Vector2 newGrav) {
+        yield return new WaitForSeconds(flipTimeSeconds);
+        Physics2D.gravity = newGrav;
     }
 
     bool IsCollided(Vector2 direction) {

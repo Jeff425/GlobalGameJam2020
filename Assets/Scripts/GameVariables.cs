@@ -71,6 +71,10 @@ public static class GameVariables {
         }
         return Direction.notset;
     }
+
+    public static bool IsVertical(Direction direction) {
+        return direction == Direction.up || direction == Direction.down;
+    }
 }
 
 public enum Direction {

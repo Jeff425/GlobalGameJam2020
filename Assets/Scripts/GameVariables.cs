@@ -40,6 +40,37 @@ public static class GameVariables {
             orange = value;
         }
     }
+
+    public static void SetColor(Colors color, Direction direction) {
+        switch (color) {
+            case Colors.black:
+                Black = direction;
+                break;
+            case Colors.blue:
+                Blue = direction;
+                break;
+            case Colors.orange:
+                Orange = direction;
+                break;
+            case Colors.yellow:
+                Yellow = direction;
+                break;
+        }
+    }
+
+    public static Direction GetColor(Colors color) {
+        switch (color) {
+            case Colors.black:
+                return Black;
+            case Colors.blue:
+                return Blue;
+            case Colors.orange:
+                return Orange;
+            case Colors.yellow:
+                return Yellow;
+        }
+        return Direction.notset;
+    }
 }
 
 public enum Direction {

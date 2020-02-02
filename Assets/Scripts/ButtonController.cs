@@ -11,22 +11,15 @@ public class ButtonController : MonoBehaviour
     Colors[] affectedColors;
 
     public void Trigger() {
+        if (!rotate) {
+            // Trade
+            Direction colorA = GameVariables.GetColor(affectedColors[0]);
+            Direction colorB = GameVariables.GetColor(affectedColors[1]);
+            GameVariables.SetColor(affectedColors[0], colorB);
+            GameVariables.SetColor(affectedColors[1], colorA);
+        }
         foreach(Colors color in affectedColors) {
-            switch(color) {
-                case Colors.black:
-                    GameVariables.Black = rotate ? Rotate90(GameVariables.Black) : Rotate180(GameVariables.Black);
-                    break;
-                case Colors.yellow:
-                    GameVariables.Yellow = rotate ? Rotate90(GameVariables.Yellow) : Rotate180(GameVariables.Yellow);
-                    break;
-                case Colors.blue:
-                    GameVariables.Blue = rotate ? Rotate90(GameVariables.Blue) : Rotate180(GameVariables.Blue);
-                    break;
-                case Colors.orange:
-                    GameVariables.Orange = rotate ? Rotate90(GameVariables.Orange) : Rotate180(GameVariables.Orange);
-                    break;
-                    
-            }
+            GameVariables.SetColor(color, Rotate90(GameVariables.GetColor(color)));
             GameController.Instance.RotateTilesOfColor(color);
         }
     }

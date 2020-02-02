@@ -4,6 +4,7 @@ using UnityEngine;
 
 public static class GameVariables {
     private static Direction black = Direction.notset, blue = Direction.notset, yellow = Direction.notset, orange = Direction.notset;
+    private static bool alreadyWon = false;
 
     public static Direction Black {
         get {
@@ -74,6 +75,14 @@ public static class GameVariables {
 
     public static bool IsVertical(Direction direction) {
         return direction == Direction.up || direction == Direction.down;
+    }
+
+    public static bool HasWon() {
+        if (!alreadyWon && Black == Direction.down && Blue == Direction.down && Yellow == Direction.down && Orange == Direction.down) {
+            alreadyWon = true;
+            return true;
+        }
+        return false;
     }
 }
 

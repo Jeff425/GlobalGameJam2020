@@ -15,6 +15,8 @@ public class PlayerController : MonoBehaviour
     float swapTimeSeconds;
     [SerializeField]
     float flipTimeSeconds;
+    [SerializeField]
+    GameObject victoryText;
 
     Rigidbody2D rigid;
     BoxCollider2D col;
@@ -40,6 +42,10 @@ public class PlayerController : MonoBehaviour
 
     void Update() 
     {
+        if (Input.GetKeyDown(KeyCode.R)) {
+            Reset();
+            return;
+        }
         CheckGravity();
         float direction = Input.GetAxisRaw("Horizontal");
         animator.SetFloat("horz", Mathf.Abs(direction));
@@ -127,11 +133,23 @@ public class PlayerController : MonoBehaviour
     void OnTriggerEnter2D(Collider2D col) {
         if (col.gameObject.layer == LayerMask.NameToLayer("Button")) {
             col.GetComponent<ButtonController>().Trigger();
+            if (GameVariables.HasWon()) {
+                victoryText.SetActive(true);
+            }
         } else if (col.gameObject.layer == LayerMask.NameToLayer("Fire")) {
-            GameController.Instance.Reset();
-            transform.position = startPosition;
-            rigid.velocity = Vector2.zero;
+            Reset();
         }
+    }
+
+    void Reset() {
+        GameController.Instance.Reset();
+        transform.position = startPosition;
+        rigid.velocity = Vector2.zero;
+    }
+
+    IEnumerator WaitAndTurnOffVictory() {
+        yield return new WaitForSeconds(5f);
+        victoryText.SetActive(false);
     }
 
     void CheckGravity() {

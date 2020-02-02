@@ -22,8 +22,10 @@ public class PlayerController : MonoBehaviour
     float startTime;
     float lastTranstion;
     float oldGravityMagnitude;
+    float startRotation;
     IEnumerator delayedPhysics;
     Vector2 startPosition;
+    Animator animator;
 
     void Awake()
     {
@@ -33,18 +35,22 @@ public class PlayerController : MonoBehaviour
         lastTranstion = -swapTimeSeconds - 1;
         delayedPhysics = null;
         startPosition = transform.position;
+        animator = GetComponent<Animator>();
     }
 
     void Update() 
     {
         CheckGravity();
         float direction = Input.GetAxisRaw("Horizontal");
+        animator.SetFloat("horz", Mathf.Abs(direction));
         float currentTime = Time.time;
         bool noControl = currentTime - swapTimeSeconds < lastTranstion;
         float oldGravity = 0f;
         if (noControl) {
             float percent = (currentTime - lastTranstion) / swapTimeSeconds;        
             oldGravity = Mathf.Lerp(oldGravityMagnitude, 0, percent);
+            transform.rotation = Quaternion.Lerp(Quaternion.Euler(0, 0, startRotation), 
+                Quaternion.Euler(0, 0, DirectionToPlayerRotation(gravityDirection)), percent);
         }
         Vector2 down = new Vector2();
         Vector2 right = new Vector2();
@@ -91,6 +97,31 @@ public class PlayerController : MonoBehaviour
         } else {          
             rigid.velocity = move;
         }
+        
+        if (GameVariables.IsVertical(gravityDirection)) {
+            //animator.SetFloat("horz", Mathf.Abs(rigid.velocity.x));
+            animator.SetFloat("vert", Mathf.Abs(rigid.velocity.y));
+            animator.SetBool("falling", gravityDirection == Direction.down ? rigid.velocity.y < 0f : rigid.velocity.y > 0f);
+            Vector2 scale = transform.localScale;
+            if (gravityDirection == Direction.down ? rigid.velocity.x < 0f : rigid.velocity.x > 0f) {
+                scale.x = -1;               
+            } else if (gravityDirection == Direction.down ? rigid.velocity.x > 0f : rigid.velocity.x < 0f){
+                scale.x = 1;
+            }
+            transform.localScale = scale;
+        } else {
+            //animator.SetFloat("horz", Mathf.Abs(rigid.velocity.y));
+            animator.SetFloat("vert", Mathf.Abs(rigid.velocity.x));
+            animator.SetBool("falling", gravityDirection == Direction.right ? rigid.velocity.x > 0f : rigid.velocity.x < 0f);
+            animator.SetBool("left", gravityDirection == Direction.right ? rigid.velocity.y < 0f : rigid.velocity.y > 0f);
+            Vector2 scale = transform.localScale;
+            if (gravityDirection == Direction.right ? rigid.velocity.y < 0f : rigid.velocity.y > 0f) {
+                scale.x = -1;               
+            } else if (gravityDirection == Direction.right ? rigid.velocity.y > 0f : rigid.velocity.y < 0f){
+                scale.x = 1;
+            }
+            transform.localScale = scale;
+        }
     }
 
     void OnTriggerEnter2D(Collider2D col) {
@@ -118,6 +149,7 @@ public class PlayerController : MonoBehaviour
             // Technically movement magnitude
             oldGravityMagnitude = GameVariables.IsVertical(gravityDirection) ? rigid.velocity.x : rigid.velocity.y;
         }
+        startRotation = transform.eulerAngles.z;
         lastTranstion = Time.time;
         Direction oldDirection = gravityDirection;
         gravityDirection = tmpDirection;
@@ -168,5 +200,17 @@ public class PlayerController : MonoBehaviour
             }
         }
         return direction;
+    }
+
+    float DirectionToPlayerRotation(Direction direction) {
+        switch (direction) {
+            case Direction.up:
+                return 180f;
+            case Direction.right:
+                return 90f;
+            case Direction.left:
+                return 270f;
+        }
+        return 0f;
     }
 }
